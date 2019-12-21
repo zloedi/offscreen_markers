@@ -1,5 +1,5 @@
 # Offscreen Markers
-Offscreen markers for Unity 3D game objects
+Offscreen indicators for Unity 3D game objects
 
 ![gif](./offscreen_markers.gif)
 ----
