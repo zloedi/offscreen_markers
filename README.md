@@ -1,4 +1,4 @@
-# offscreen_markers
+# Offscreen Markers
 Offscreen markers for Unity 3D game objects
 
 ![vid](https://i.imgur.com/OIswHRq.gif)
