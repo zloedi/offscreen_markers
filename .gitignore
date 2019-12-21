@@ -1,0 +1,5 @@
+*.swp
+Library/
+Logs/
+Packages/
+Temp/
