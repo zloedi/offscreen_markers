@@ -88,19 +88,22 @@ class OffscreenMarkersCameraScript : MonoBehaviour {
                     );
                     Rect ri = new Rect( iconPos.x - iconExt.x, iconPos.y - iconExt.y, iconSize.x, iconSize.y );
                     GUI.DrawTexture( ri, om.Icon ); 
-                    Vector2 towardOM = ( omScreenPos - iconPos ).normalized;
-                    Vector2 arrowPos = iconPos + towardOM * ( iconExt.x + arrowExt.y );
-                    Matrix4x4 oldm = GUI.matrix;
-                    Matrix4x4 mr = new Matrix4x4();
-                    mr.SetColumn(0, new Vector3( towardOM.y, -towardOM.x, 0 ) );
-                    mr.SetColumn(1, new Vector3( -towardOM.x, -towardOM.y, 0 ) );
-                    mr.SetColumn(2, new Vector3( 0, 0, 1 ) );
-                    mr.SetColumn(3, new Vector4( arrowPos.x, arrowPos.y, 0, 1 ) );
-                    GUI.matrix = mr * mt;
-                    Rect ra = new Rect( 0, 0, arrowSize.x, arrowSize.y );
-                    GUI.DrawTexture( ra, om.Arrow, ScaleMode.StretchToFill, alphaBlend: true, imageAspect: 0, color: om.Color, 
-                                        borderWidth: 0, borderRadius: 0); 
-                    GUI.matrix = oldm;
+                    Vector2 towardOM = omScreenPos - iconPos;
+                    if ( towardOM.sqrMagnitude > 0.001f ) {
+                        Vector2 twn = towardOM.normalized;
+                        Vector2 arrowPos = iconPos + twn * ( iconExt.x + arrowExt.y );
+                        Matrix4x4 oldm = GUI.matrix;
+                        Matrix4x4 mr = new Matrix4x4();
+                        mr.SetColumn(0, new Vector3( twn.y, -twn.x, 0 ) );
+                        mr.SetColumn(1, new Vector3( -twn.x, -twn.y, 0 ) );
+                        mr.SetColumn(2, new Vector3( 0, 0, 1 ) );
+                        mr.SetColumn(3, new Vector4( arrowPos.x, arrowPos.y, 0, 1 ) );
+                        GUI.matrix = mr * mt;
+                        Rect ra = new Rect( 0, 0, arrowSize.x, arrowSize.y );
+                        GUI.DrawTexture( ra, om.Arrow, ScaleMode.StretchToFill, alphaBlend: true, imageAspect: 0, color: om.Color, 
+                                            borderWidth: 0, borderRadius: 0); 
+                        GUI.matrix = oldm;
+                    }
                 }
             } else {
                 _trackedObjects.RemoveAt( i );
