@@ -54,9 +54,16 @@ class OffscreenMarkersCameraScript : MonoBehaviour {
         Vector3 d = p - _camera.transform.position;
         Vector3 n = _camera.transform.forward;
         float ds = Vector3.Dot( d, n );
+
         if ( ds > 0 ) {
             return p;
         }
+
+        // make sure that we are never on the camera plane
+        if ( ds == 0 ) {
+            return p + n * 0.00001f;
+        } 
+
         return p - 2 * ds * n;
     }
 
@@ -76,21 +83,21 @@ class OffscreenMarkersCameraScript : MonoBehaviour {
         mt.SetColumn(3, new Vector4( -arrowExt.x, -arrowExt.y, 0, 1 ) );
         float margin = arrowSize.y;
         for ( int i = _trackedObjects.Count - 1; i >= 0; i-- ) {
-            OffscreenMarker om = _trackedObjects[i];
-            if ( om && om.gameObject ) {
-                if ( ! IsVisible( om.gameObject ) ) {
-                    Vector3 worldPos = FixBehindCamera( om.transform.position );
-                    Vector2 omScreenPos = _camera.WorldToScreenPoint( worldPos );
-                    omScreenPos.y = camRect.height - omScreenPos.y;
+            OffscreenMarker marker = _trackedObjects[i];
+            if ( marker && marker.gameObject ) {
+                if ( ! IsVisible( marker.gameObject ) ) {
+                    Vector3 wp = FixBehindCamera( marker.transform.position );
+                    Vector2 mrkScrPos = _camera.WorldToScreenPoint( wp );
+                    mrkScrPos.y = camRect.height - mrkScrPos.y;
                     Vector2 iconPos = new Vector2(
-                        Mathf.Clamp( omScreenPos.x, iconExt.x + margin, camRect.width - iconExt.x - margin ),
-                        Mathf.Clamp( omScreenPos.y, iconExt.y + margin, camRect.height - iconExt.y - margin )
+                        Mathf.Clamp( mrkScrPos.x, iconExt.x + margin, camRect.width - iconExt.x - margin ),
+                        Mathf.Clamp( mrkScrPos.y, iconExt.y + margin, camRect.height - iconExt.y - margin )
                     );
                     Rect ri = new Rect( iconPos.x - iconExt.x, iconPos.y - iconExt.y, iconSize.x, iconSize.y );
-                    GUI.DrawTexture( ri, om.Icon ); 
-                    Vector2 towardOM = omScreenPos - iconPos;
-                    if ( towardOM.sqrMagnitude > 0.001f ) {
-                        Vector2 twn = towardOM.normalized;
+                    GUI.DrawTexture( ri, marker.Icon ); 
+                    Vector2 towardMrk = mrkScrPos - iconPos;
+                    if ( towardMrk.sqrMagnitude > 0.001f ) {
+                        Vector2 twn = towardMrk.normalized;
                         Vector2 arrowPos = iconPos + twn * ( iconExt.x + arrowExt.y );
                         Matrix4x4 oldm = GUI.matrix;
                         Matrix4x4 mr = new Matrix4x4();
@@ -100,8 +107,8 @@ class OffscreenMarkersCameraScript : MonoBehaviour {
                         mr.SetColumn(3, new Vector4( arrowPos.x, arrowPos.y, 0, 1 ) );
                         GUI.matrix = mr * mt;
                         Rect ra = new Rect( 0, 0, arrowSize.x, arrowSize.y );
-                        GUI.DrawTexture( ra, om.Arrow, ScaleMode.StretchToFill, alphaBlend: true, imageAspect: 0, color: om.Color, 
-                                            borderWidth: 0, borderRadius: 0); 
+                        GUI.DrawTexture( ra, marker.Arrow, ScaleMode.StretchToFill, alphaBlend: true, imageAspect: 0, 
+                                            color: marker.Color, borderWidth: 0, borderRadius: 0); 
                         GUI.matrix = oldm;
                     }
                 }
